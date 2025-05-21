@@ -24,7 +24,6 @@ A simple and efficient **command-line tool** to compare two CSV files by specifi
 ---
 
 ## 🛠 Requirements
-
 - Python 3.x
 - pandas library (`pip install pandas`)
 
@@ -36,52 +35,46 @@ A simple and efficient **command-line tool** to compare two CSV files by specifi
 - Differences are printed with row/key, column name, and differing values.
 
 🚀 Usage
-
 Run the script with the following command:
 ```bash
 python csv_compare.py <file1> <file2> --columns <column1> <column2> ... [options]
 ```
-** Arguments **
-file1.csv: Path to the first CSV file.
-file2.csv: Path to the second CSV file.
---columns: List of columns to compare (required).
---keys: Optional key column(s) to compare by. If omitted, the comparison is done row by row.
---export-mismatches <output.csv>: Path to export mismatches as a CSV file.
---export-html <output.html>: Path to export mismatches as an HTML file.
---ignore-column-order: Ignore column order and align columns by name.
+
+**Arguments**
+- `file1.csv`: Path to the first CSV file.  
+- `file2.csv`: Path to the second CSV file.  
+- `--columns`: List of columns to compare (**required**).  
+- `--keys`: Optional key column(s) to compare by. If omitted, the comparison is done row by row.  
+- `--export-mismatches <output.csv>`: Path to export mismatches as a CSV file.  
+- `--export-html <output.html>`: Path to export mismatches as an HTML file.  
+- `--ignore-column-order`: Ignore column order and align columns by name.
 
 1. Basic command
 Compare two CSV files by specific columns using row index:
 ```bash
 python csv_compare.py file1.csv file2.csv --columns ColumnA ColumnB
 ```
-
 2. Using key column(s)
 Compare using FamilyId as a unique key:
 ```bash
 python csv_compare.py file1.csv file2.csv --columns ColumnA ColumnB --keys KeyColumn
 ```
-
 3. Multiple key columns
 ```bash
 python csv_compare.py file1.csv file2.csv --columns ColumnA --keys KeyColumn1 KeyColumn2
 ```
-
 4. Export Mismatches to CSV
 ```bash
 python csv_compare.py file1.csv file2.csv --columns ColumnA ColumnB --export-mismatches mismatches.csv
 ```
-
 5. Generate an HTML report with mismatches highlighted:
 ```bash
 python csv_compare.py file1.csv file2.csv --columns ColumnA ColumnB --export-html mismatches.html
 ```
-
 6. Align columns by name and ignore their order:
 ```bash
 python csv_compare.py file1.csv file2.csv --columns ColumnA ColumnB --ignore-column-order
 ```
-
 7. Full Example:
 ```bash
 python csv_compare.py file1.csv file2.csv --columns ColumnA ColumnB --keys KeyColumn --export-mismatches mismatches.csv --export-html mismatches.html --ignore-column-order
