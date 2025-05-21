@@ -18,25 +18,32 @@ def validate_columns(df, columns, file_name):
         print(f"❌ Missing columns in {file_name}: {missing_columns}")
         sys.exit(1)
 
-def compare_by_index(df1, df2, columns):
+def normalize_value(value, unordered=False):
+    """Normalize a value for comparison. If unordered, sort the components."""
+    if unordered:
+        return ",".join(sorted(value.split(","))) if value else ""
+    return value
+
+def compare_by_index(df1, df2, columns, unordered_columns):
     """Compare two DataFrames row by row based on the specified columns."""
     mismatches = []
     min_len = min(len(df1), len(df2))
     for i in range(min_len):
         row1, row2 = df1.iloc[i], df2.iloc[i]
         for col in columns:
-            val1 = str(row1.get(col, "")).strip().lower()
-            val2 = str(row2.get(col, "")).strip().lower()
+            unordered = col in unordered_columns
+            val1 = normalize_value(str(row1.get(col, "")).strip().lower(), unordered)
+            val2 = normalize_value(str(row2.get(col, "")).strip().lower(), unordered)
             if val1 != val2:
                 mismatches.append({
-                    "KeyOrRow": i,  # Use 'KeyOrRow' instead of 'Row'
+                    "KeyOrRow": i,
                     "ColumnName": col,
                     "File1Value": row1.get(col, ""),
                     "File2Value": row2.get(col, "")
                 })
     return mismatches
 
-def compare_by_key(df1, df2, key_columns, compare_columns):
+def compare_by_key(df1, df2, key_columns, compare_columns, unordered_columns):
     """Compare two DataFrames based on key columns and specified comparison columns."""
     df1 = df1.set_index(key_columns)
     df2 = df2.set_index(key_columns)
@@ -48,11 +55,18 @@ def compare_by_key(df1, df2, key_columns, compare_columns):
         row1 = df1.loc[key] if key in df1.index else None
         row2 = df2.loc[key] if key in df2.index else None
         for col in compare_columns:
-            val1 = str(row1[col]).strip().lower() if row1 is not None and col in row1 else "<missing>"
-            val2 = str(row2[col]).strip().lower() if row2 is not None and col in row2 else "<missing>"
+            unordered = col in unordered_columns
+            val1 = normalize_value(
+                str(row1[col]).strip().lower() if row1 is not None and col in row1 else "<missing>",
+                unordered
+            )
+            val2 = normalize_value(
+                str(row2[col]).strip().lower() if row2 is not None and col in row2 else "<missing>",
+                unordered
+            )
             if val1 != val2:
                 mismatches.append({
-                    "KeyOrRow": key if isinstance(key, tuple) else (key,),  # Use 'KeyOrRow' instead of 'Key'
+                    "KeyOrRow": key if isinstance(key, tuple) else (key,),
                     "ColumnName": col,
                     "File1Value": row1[col] if row1 is not None and col in row1 else "<missing>",
                     "File2Value": row2[col] if row2 is not None and col in row2 else "<missing>"
@@ -109,6 +123,7 @@ def main():
     parser.add_argument("file2", help="Path to second CSV")
     parser.add_argument("--columns", nargs="+", required=True, help="Columns to compare")
     parser.add_argument("--keys", nargs="*", help="Optional key column(s). If omitted, compares by row index.")
+    parser.add_argument("--unordered-columns", nargs="*", default=[], help="Columns to compare without considering order")
     parser.add_argument("--export-mismatches", help="Path to export mismatches as a CSV file")
     parser.add_argument("--export-html", help="Path to export mismatches as an HTML file")
     parser.add_argument("--ignore-column-order", action="store_true", help="Ignore column order and align columns by name")
@@ -119,7 +134,7 @@ def main():
     df1 = load_csv(args.file1)
     df2 = load_csv(args.file2)
 
-     # Handle column order
+    # Handle column order
     if args.ignore_column_order:
         common_columns = list(set(df1.columns).intersection(set(df2.columns)))
         df1 = df1[common_columns]
@@ -136,15 +151,15 @@ def main():
     # Perform comparison
     if args.keys:
         print(f"🔍 Comparing by keys: {args.keys}")
-        mismatches = compare_by_key(df1, df2, args.keys, args.columns)
+        mismatches = compare_by_key(df1, df2, args.keys, args.columns, args.unordered_columns)
     else:
         print(f"🔍 Comparing by row index")
-        mismatches = compare_by_index(df1, df2, args.columns)
+        mismatches = compare_by_index(df1, df2, args.columns, args.unordered_columns)
 
     # Print mismatches
     print_mismatches(mismatches)
 
-     # Export mismatches
+    # Export mismatches
     if args.export_mismatches:
         export_mismatches_to_csv(mismatches, args.export_mismatches)
     if args.export_html:

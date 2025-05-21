@@ -48,6 +48,7 @@ python csv_compare.py <file1> <file2> --columns <column1> <column2> ... [options
 - `--export-mismatches <output.csv>`: Path to export mismatches as a CSV file.  
 - `--export-html <output.html>`: Path to export mismatches as an HTML file.  
 - `--ignore-column-order`: Ignore column order and align columns by name.
+- `--unordered-columns`: Allows the user to specify columns that require order-independent comparison.
 
 1. Basic command
 Compare two CSV files by specific columns using row index:
@@ -75,7 +76,11 @@ python csv_compare.py file1.csv file2.csv --columns ColumnA ColumnB --export-htm
 ```bash
 python csv_compare.py file1.csv file2.csv --columns ColumnA ColumnB --ignore-column-order
 ```
-7. Full Example:
+7. Compare with Order-Independent Columns:
+```bash
+python csv_compare.py file1.csv file2.csv --columns Members Age --unordered-columns Members
+```
+8. Full Example:
 ```bash
 python csv_compare.py file1.csv file2.csv --columns ColumnA ColumnB --keys KeyColumn --export-mismatches mismatches.csv --export-html mismatches.html --ignore-column-order
 ```
