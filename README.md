@@ -39,7 +39,7 @@ A simple and efficient **command-line tool** to compare two CSV files by specifi
 
 Run the script with the following command:
 ```bash
-python [csv_compare.py](http://_vscodecontentref_/2) <file1> <file2> --columns <column1> <column2> ... [options]
+python csv_compare.py <file1> <file2> --columns <column1> <column2> ... [options]
 ```
 ** Arguments **
 file1.csv: Path to the first CSV file.
